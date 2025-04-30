@@ -1,0 +1,686 @@
+<html lang="en">
+ <head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <title>RasaNusantara - Platform Kuliner Lokal UMKM Indonesia</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter&amp;display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+  <style>
+    body {
+      font-family: "Inter", sans-serif;
+    }
+    /* Scrollbar for horizontal scroll */
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    /* Chatbot styles */
+    #chatbot {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      width: 320px;
+      max-height: 400px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      font-size: 14px;
+      z-index: 1000;
+      display: none;
+    }
+    #chatbot-header {
+      background-color: #d9b310;
+      color: white;
+      padding: 12px 16px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: default;
+    }
+    #chatbot-messages {
+      flex-grow: 1;
+      padding: 12px 16px;
+      overflow-y: auto;
+      background: #fff8d6;
+    }
+    .chatbot-message {
+      margin-bottom: 10px;
+      max-width: 80%;
+      padding: 8px 12px;
+      border-radius: 12px;
+      line-height: 1.3;
+      word-wrap: break-word;
+      white-space: pre-line;
+    }
+    .chatbot-message.user {
+      background-color: #d9b310;
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 0;
+    }
+    .chatbot-message.bot {
+      background-color: #f0e68c;
+      color: #333;
+      align-self: flex-start;
+      border-bottom-left-radius: 0;
+    }
+    #chatbot-input-container {
+      display: flex;
+      border-top: 1px solid #ccc;
+      padding: 8px 12px;
+      background: white;
+    }
+    #chatbot-input {
+      flex-grow: 1;
+      border: 1px solid #d9b310;
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 14px;
+      outline: none;
+    }
+    #chatbot-send {
+      background-color: #d9b310;
+      border: none;
+      color: white;
+      padding: 6px 14px;
+      margin-left: 8px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    #chatbot-send:hover {
+      background-color: #b5940e;
+    }
+    /* Chatbot toggle button */
+    #chatbot-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #d9b310;
+      color: white;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      z-index: 1001;
+      transition: background-color 0.3s ease;
+    }
+    #chatbot-toggle:hover {
+      background-color: #b5940e;
+    }
+  </style>
+ </head>
+ <body class="bg-[#fff9e6] min-h-screen flex flex-col">
+  <!-- Navbar -->
+  <nav class="bg-white shadow-md sticky top-0 z-50">
+   <div
+    class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-4"
+   >
+    <a class="text-2xl font-extrabold text-[#d9b310] flex items-center gap-2" href="index.html">
+     <i class="fas fa-utensils"></i>
+     <span>RasaNusantara</span>
+    </a>
+    <button
+     aria-label="Toggle menu"
+     class="md:hidden text-[#d9b310] border border-[#d9b310] p-2 rounded-md"
+     id="menu-toggle"
+    >
+     <i class="fas fa-bars text-xl"></i>
+    </button>
+    <ul
+     class="hidden md:flex flex-wrap gap-6 text-[#1a1a1a] font-semibold text-sm sm:text-base items-center"
+     id="menu"
+    >
+     <li><a class="hover:text-[#d9b310]" href="index.html#beranda">Beranda</a></li>
+     <li><a class="hover:text-[#d9b310]" href="menu.html">Kuliner Daerah</a></li>
+     <li><a class="hover:text-[#d9b310]" href="index.html#umkm">UMKM</a></li>
+     <li><a class="hover:text-[#d9b310]" href="index.html#cerita">Cerita</a></li>
+     <li><a class="hover:text-[#d9b310]" href="index.html#afiliasi">Afiliasi</a></li>
+     <li><a class="hover:text-[#d9b310]" href="index.html#premium">Premium</a></li>
+     <li><a class="hover:text-[#d9b310]" href="leaderboard.html">Leaderboard</a></li>
+     <li class="ml-auto flex gap-3">
+      <button
+       class="bg-[#d9b310] text-white px-4 py-2 rounded-md font-semibold hover:bg-[#b5940e] transition"
+      >
+       Daftar UMKM
+      </button>
+      <button
+       class="border border-[#d9b310] text-[#d9b310] px-4 py-2 rounded-md font-semibold hover:bg-[#d9b310] hover:text-white transition"
+      >
+       Masuk
+      </button>
+     </li>
+    </ul>
+   </div>
+   <!-- Mobile menu -->
+   <div class="md:hidden bg-white px-6 pb-4 hidden" id="mobile-menu">
+    <ul class="flex flex-col gap-4 text-[#1a1a1a] font-semibold text-base">
+     <li><a class="hover:text-[#d9b310]" href="index.html#beranda" onclick="closeMobileMenu()">Beranda</a></li>
+     <li><a class="hover:text-[#d9b310]" href="menu.html" onclick="closeMobileMenu()">Kuliner Daerah</a></li>
+     <li><a class="hover:text-[#d9b310]" href="index.html#umkm" onclick="closeMobileMenu()">UMKM</a></li>
+     <li><a class="hover:text-[#d9b310]" href="index.html#cerita" onclick="closeMobileMenu()">Cerita</a></li>
+     <li><a class="hover:text-[#d9b310]" href="index.html#afiliasi" onclick="closeMobileMenu()">Afiliasi</a></li>
+     <li><a class="hover:text-[#d9b310]" href="index.html#premium" onclick="closeMobileMenu()">Premium</a></li>
+     <li><a class="hover:text-[#d9b310]" href="leaderboard.html" onclick="closeMobileMenu()">Leaderboard</a></li>
+    </ul>
+    <div class="flex flex-col gap-3 mt-4">
+     <button
+      class="bg-[#d9b310] text-white px-4 py-2 rounded-md font-semibold hover:bg-[#b5940e] transition"
+     >
+      Daftar UMKM
+     </button>
+     <button
+      class="border border-[#d9b310] text-[#d9b310] px-4 py-2 rounded-md font-semibold hover:bg-[#d9b310] hover:text-white transition"
+     >
+      Masuk
+     </button>
+    </div>
+   </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section
+   class="bg-white max-w-7xl mx-auto mt-8 rounded-lg shadow-md px-6 py-12 flex flex-col md:flex-row items-center gap-8"
+   id="beranda"
+  >
+   <div class="md:w-1/2">
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-[#d9b310] mb-4 leading-tight">
+     Jelajahi &amp; Dukung Kuliner Lokal Indonesia
+    </h1>
+    <p class="text-[#333333] text-base sm:text-lg mb-6">
+     Temukan makanan khas dari berbagai daerah, kenali cerita di baliknya, dan
+     dukung pelaku UMKM kuliner Indonesia melalui platform kami.
+    </p>
+    <a
+     class="inline-block bg-[#d9b310] text-white px-6 py-3 rounded-md font-semibold hover:bg-[#b5940e] transition"
+     href="kuliner.html"
+    >
+     Mulai Jelajah
+    </a>
+   </div>
+   <div class="md:w-1/2 w-full">
+    <img
+     alt="Gambar ilustrasi berbagai makanan khas nusantara dari pelaku UMKM, menampilkan rendang, sate, gudeg, dan pempek dalam piring tradisional dengan latar dapur Indonesia"
+     class="rounded-lg shadow-lg w-full object-cover max-h-[400px]"
+     height="400"
+     src="https://storage.googleapis.com/a1aa/image/9bb157a0-1818-4840-3604-2f54a237f6ef.jpg"
+     width="600"
+    />
+   </div>
+  </section>
+
+  <!-- UMKM Marketplace Section -->
+  <section
+   class="max-w-7xl mx-auto mt-12 px-6 py-8 bg-white rounded-lg shadow-md"
+   id="umkm"
+  >
+   <h2 class="text-2xl sm:text-3xl font-bold text-[#d9b310] mb-6 text-center">
+    Marketplace UMKM Kuliner
+   </h2>
+   <p
+    class="text-center max-w-3xl mx-auto text-[#555555] mb-8 text-sm sm:text-base"
+   >
+    Beli langsung makanan khas dari pelaku UMKM dengan kualitas terjamin dan
+    dukung ekonomi lokal.
+   </p>
+   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
+    <!-- Product Card 1 -->
+    <article class="bg-[#fff8d6] rounded-lg shadow-md flex flex-col">
+     <img
+      alt="Rendang Padang dari UMKM dengan kemasan menarik, daging rendang berwarna coklat gelap dengan bumbu kental dan daun jeruk di atasnya"
+      class="rounded-t-lg object-cover w-full h-44 sm:h-48"
+      height="200"
+      src="https://storage.googleapis.com/a1aa/image/5490b066-178e-4590-b70b-0be442194066.jpg"
+      width="320"
+     />
+     <div class="p-4 flex flex-col flex-grow">
+      <h3 class="font-bold text-lg mb-1">Rendang Padang UMKM</h3>
+      <p class="text-sm text-[#555555] mb-2 flex-grow">
+       Rendang asli Minang dengan bahan pilihan dan proses tradisional.
+      </p>
+      <div class="font-semibold text-xl mb-3">Rp 50.000</div>
+      <button
+       aria-label="Tambah Rendang Padang ke keranjang"
+       class="bg-[#d9b310] text-white py-2 rounded-md font-semibold hover:bg-[#b5940e] transition"
+      >
+       <i class="fas fa-cart-plus mr-2"></i> Tambah ke Keranjang
+      </button>
+     </div>
+    </article>
+    <!-- Product Card 2 -->
+    <article class="bg-[#fff8d6] rounded-lg shadow-md flex flex-col">
+     <img
+      alt="Gudeg Yogyakarta dari UMKM dengan kemasan tradisional, nasi gudeg berwarna coklat kemerahan dengan telur dan ayam opor di sampingnya"
+      class="rounded-t-lg object-cover w-full h-44 sm:h-48"
+      height="200"
+      src="https://storage.googleapis.com/a1aa/image/ba09514d-5ed9-4e2b-571d-eb91ccba6d87.jpg"
+      width="320"
+     />
+     <div class="p-4 flex flex-col flex-grow">
+      <h3 class="font-bold text-lg mb-1">Gudeg Yogyakarta UMKM</h3>
+      <p class="text-sm text-[#555555] mb-2 flex-grow">
+       Gudeg manis legit khas Yogyakarta, dibuat oleh pelaku UMKM lokal.
+      </p>
+      <div class="font-semibold text-xl mb-3">Rp 40.000</div>
+      <button
+       aria-label="Tambah Gudeg Yogyakarta ke keranjang"
+       class="bg-[#d9b310] text-white py-2 rounded-md font-semibold hover:bg-[#b5940e] transition"
+      >
+       <i class="fas fa-cart-plus mr-2"></i> Tambah ke Keranjang
+      </button>
+     </div>
+    </article>
+    <!-- Product Card 3 -->
+    <article class="bg-[#fff8d6] rounded-lg shadow-md flex flex-col">
+     <img
+      alt="Pempek Palembang dari UMKM dengan kemasan modern, pempek ikan dengan kuah cuko berwarna coklat gelap dan irisan timun"
+      class="rounded-t-lg object-cover w-full h-44 sm:h-48"
+      height="200"
+      src="https://storage.googleapis.com/a1aa/image/7fd03478-fbda-484e-f800-ecca6e336c16.jpg"
+      width="320"
+     />
+     <div class="p-4 flex flex-col flex-grow">
+      <h3 class="font-bold text-lg mb-1">Pempek Palembang UMKM</h3>
+      <p class="text-sm text-[#555555] mb-2 flex-grow">
+       Pempek segar dengan kuah cuka khas Palembang, langsung dari UMKM.
+      </p>
+      <div class="font-semibold text-xl mb-3">Rp 35.000</div>
+      <button
+       aria-label="Tambah Pempek Palembang ke keranjang"
+       class="bg-[#d9b310] text-white py-2 rounded-md font-semibold hover:bg-[#b5940e] transition"
+      >
+       <i class="fas fa-cart-plus mr-2"></i> Tambah ke Keranjang
+      </button>
+     </div>
+    </article>
+    <!-- Product Card 4 -->
+    <article class="bg-[#fff8d6] rounded-lg shadow-md flex flex-col">
+     <img
+      alt="Ayam Betutu Bali dari UMKM dengan kemasan tradisional, ayam utuh berbumbu rempah dengan daun pisang sebagai alas"
+      class="rounded-t-lg object-cover w-full h-44 sm:h-48"
+      height="200"
+      src="https://storage.googleapis.com/a1aa/image/b4dd0cd0-802b-40f7-55ff-5a22aca5d0da.jpg"
+      width="320"
+     />
+     <div class="p-4 flex flex-col flex-grow">
+      <h3 class="font-bold text-lg mb-1">Ayam Betutu Bali UMKM</h3>
+      <p class="text-sm text-[#555555] mb-2 flex-grow">
+       Ayam Betutu dengan bumbu khas Bali, dimasak perlahan oleh UMKM lokal.
+      </p>
+      <div class="font-semibold text-xl mb-3">Rp 45.000</div>
+      <button
+       aria-label="Tambah Ayam Betutu Bali ke keranjang"
+       class="bg-[#d9b310] text-white py-2 rounded-md font-semibold hover:bg-[#b5940e] transition"
+      >
+       <i class="fas fa-cart-plus mr-2"></i> Tambah ke Keranjang
+      </button>
+     </div>
+    </article>
+   </div>
+  </section>
+
+  <!-- Cerita Kuliner Section -->
+  <section
+   class="max-w-7xl mx-auto mt-12 px-6 py-8 bg-white rounded-lg shadow-md"
+   id="cerita"
+  >
+   <h2 class="text-2xl sm:text-3xl font-bold text-[#d9b310] mb-6 text-center">
+    Cerita di Balik Makanan
+   </h2>
+   <p
+    class="text-center max-w-3xl mx-auto text-[#555555] mb-8 text-sm sm:text-base"
+   >
+    Setiap makanan punya kisah dan budaya yang unik. Simak cerita menarik dari
+    pelaku UMKM dan budaya kuliner Indonesia.
+   </p>
+   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+    <article class="flex flex-col md:flex-row gap-4 items-center">
+     <img
+      alt="Wawancara pelaku UMKM rendang dengan latar dapur tradisional, seorang wanita mengenakan kebaya sedang memasak rendang di dapur kayu"
+      class="rounded-lg object-cover w-full md:w-1/2 h-40 sm:h-48"
+      height="200"
+      src="https://storage.googleapis.com/a1aa/image/67d0594e-16a3-4d24-2838-4efa411da6b1.jpg"
+      width="320"
+     />
+     <div>
+      <h3 class="font-bold text-xl mb-2">Wawancara dengan Pelaku UMKM Rendang</h3>
+      <p class="text-[#444444] text-sm sm:text-base">
+       Pelaku UMKM dari Padang berbagi cerita tentang proses pembuatan rendang
+       tradisional dan tantangan yang dihadapi dalam mempertahankan cita rasa
+       asli.
+      </p>
+     </div>
+    </article>
+    <article class="flex flex-col md:flex-row gap-4 items-center">
+     <img
+      alt="Foto budaya kuliner Yogyakarta dengan makanan dan alat tradisional, meja kayu dengan piring berisi gudeg, sambal krecek, dan nasi"
+      class="rounded-lg object-cover w-full md:w-1/2 h-40 sm:h-48"
+      height="200"
+      src="https://storage.googleapis.com/a1aa/image/e1df1232-e072-435e-d970-d17e9277b185.jpg"
+      width="320"
+     />
+     <div>
+      <h3 class="font-bold text-xl mb-2">Budaya Kuliner Yogyakarta</h3>
+      <p class="text-[#444444] text-sm sm:text-base">
+       Menyelami tradisi dan filosofi di balik Gudeg, makanan khas Yogyakarta
+       yang menjadi bagian penting dari budaya lokal.
+      </p>
+     </div>
+    </article>
+   </div>
+  </section>
+
+  <!-- Fitur Afiliasi Section -->
+  <section
+   class="max-w-7xl mx-auto mt-12 px-6 py-8 bg-white rounded-lg shadow-md"
+   id="afiliasi"
+  >
+   <h2 class="text-2xl sm:text-3xl font-bold text-[#d9b310] mb-6 text-center">
+    Program Afiliasi
+   </h2>
+   <p
+    class="text-center max-w-3xl mx-auto text-[#555555] mb-8 text-sm sm:text-base"
+   >
+    Dapatkan komisi dengan mempromosikan produk UMKM kuliner lokal. Mudah dan
+    transparan.
+   </p>
+   <div class="flex flex-col md:flex-row items-center gap-6 max-w-5xl mx-auto">
+    <img
+     alt="Ilustrasi program afiliasi dengan pengguna mempromosikan produk kuliner, seorang pria menggunakan laptop dengan ikon produk makanan dan jaringan di layar"
+     class="rounded-lg shadow-lg w-full md:w-1/2 object-cover max-h-[300px]"
+     height="300"
+     src="https://storage.googleapis.com/a1aa/image/e90b945b-ee12-415b-3c2f-3b1bc73b46ae.jpg"
+     width="400"
+    />
+    <div>
+     <ul class="list-disc list-inside text-[#444444] text-base space-y-3">
+      <li>Daftar gratis dan dapatkan link afiliasi unik untuk setiap produk.</li>
+      <li>Pantau klik, penjualan, dan komisi melalui dashboard afiliasi.</li>
+      <li>Gunakan materi promosi yang kami sediakan untuk memperluas jangkauan.</li>
+      <li>Komisi dibayarkan secara otomatis dan transparan.</li>
+     </ul>
+     <button
+      aria-label="Daftar program afiliasi"
+      class="mt-6 bg-[#d9b310] text-white px-6 py-3 rounded-md font-semibold hover:bg-[#b5940e] transition w-full md:w-auto"
+     >
+      Daftar Sekarang
+     </button>
+    </div>
+   </div>
+  </section>
+
+  <!-- Fitur Premium Section -->
+  <section
+   class="max-w-7xl mx-auto mt-12 mb-16 px-6 py-8 bg-white rounded-lg shadow-md"
+   id="premium"
+  >
+   <h2 class="text-2xl sm:text-3xl font-bold text-[#d9b310] mb-6 text-center">
+    Fitur Premium untuk Penjual
+   </h2>
+   <p
+    class="text-center max-w-3xl mx-auto text-[#555555] mb-8 text-sm sm:text-base"
+   >
+    Tingkatkan penjualan dan pemasaran dengan fitur analisis dan promosi
+    eksklusif.
+   </p>
+   <div
+    class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto text-center"
+   >
+    <div
+     class="bg-[#fff8d6] rounded-lg p-6 shadow-md flex flex-col items-center"
+    >
+     <i class="fas fa-chart-line text-4xl sm:text-5xl text-[#d9b310] mb-4"></i>
+     <h3 class="font-bold text-xl mb-2">Dashboard Analisis Penjualan</h3>
+     <p class="text-[#444444] text-sm sm:text-base">
+      Pantau performa produk, tren pembelian, dan data pelanggan secara
+      real-time.
+     </p>
+    </div>
+    <div
+     class="bg-[#fff8d6] rounded-lg p-6 shadow-md flex flex-col items-center"
+    >
+     <i class="fas fa-bullhorn text-4xl sm:text-5xl text-[#d9b310] mb-4"></i>
+     <h3 class="font-bold text-xl mb-2">Promosi Prioritas</h3>
+     <p class="text-[#444444] text-sm sm:text-base">
+      Produk Anda akan tampil lebih menonjol di halaman utama dan rekomendasi.
+     </p>
+    </div>
+    <div
+     class="bg-[#fff8d6] rounded-lg p-6 shadow-md flex flex-col items-center"
+    >
+     <i class="fas fa-chalkboard-teacher text-4xl sm:text-5xl text-[#d9b310] mb-4"></i>
+     <h3 class="font-bold text-xl mb-2">Pelatihan Digital Marketing</h3>
+     <p class="text-[#444444] text-sm sm:text-base">
+      Akses webinar dan materi edukasi untuk meningkatkan kemampuan pemasaran
+      online.
+     </p>
+    </div>
+   </div>
+   <div class="text-center mt-8">
+    <a
+     href="fitur premium.html"
+     aria-label="Daftar fitur premium"
+     class="bg-[#d9b310] text-white px-8 py-3 rounded-md font-semibold hover:bg-[#b5940e] transition w-full max-w-xs mx-auto md:w-auto inline-block"
+    >
+     Daftar Fitur Premium
+    </a>
+   </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-[#d9b310] text-white py-6 mt-auto">
+   <div
+    class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4"
+   >
+    <p class="text-sm text-center md:text-left">
+     © 2024 RasaNusantara. Semua hak cipta dilindungi.
+    </p>
+    <div class="flex gap-6 text-lg justify-center md:justify-start">
+     <a aria-label="Facebook" class="hover:text-[#b5940e]" href="#">
+      <i class="fab fa-facebook-f"></i>
+     </a>
+     <a aria-label="Instagram" class="hover:text-[#b5940e]" href="#">
+      <i class="fab fa-instagram"></i>
+     </a>
+     <a aria-label="Twitter" class="hover:text-[#b5940e]" href="#">
+      <i class="fab fa-twitter"></i>
+     </a>
+    </div>
+   </div>
+  </footer>
+
+  <!-- Chatbot Toggle Button -->
+  <div id="chatbot-toggle" title="Chat dengan RasaNusantara">
+   <i class="fas fa-comment-alt"></i>
+  </div>
+
+  <!-- Chatbot Window -->
+  <div
+   id="chatbot"
+   role="dialog"
+   aria-modal="true"
+   aria-labelledby="chatbot-header"
+   class="flex flex-col"
+  >
+   <div
+    id="chatbot-header"
+    class="bg-[#d9b310] text-white p-3 font-semibold flex justify-between items-center"
+   >
+    <span>Chatbot RasaNusa 🍽️</span>
+    <button
+     aria-label="Tutup chat"
+     id="chatbot-close"
+     class="text-white font-bold text-lg cursor-pointer"
+    >
+     ×
+    </button>
+   </div>
+   <div
+    id="chat"
+    class="p-3 overflow-y-auto bg-[#fff8d6] flex-grow"
+    style="max-height: 320px;"
+    aria-live="polite"
+   ></div>
+   <div class="p-3 bg-white flex gap-2">
+    <input
+     type="text"
+     id="userInput"
+     placeholder="Tulis pertanyaan..."
+     class="flex-grow border border-[#d9b310] rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#d9b310]"
+     aria-label="Tulis pertanyaan"
+     autocomplete="off"
+     onkeydown="if(event.key==='Enter'){sendMessage();}"
+    />
+    <button
+     id="sendBtn"
+     class="bg-[#d9b310] text-white px-4 py-2 rounded-md font-semibold hover:bg-[#b5940e] transition"
+     aria-label="Kirim pesan"
+    >
+     Kirim
+    </button>
+   </div>
+  </div>
+
+  <script>
+    // Navbar mobile toggle
+    const menuToggle = document.getElementById("menu-toggle");
+    const mobileMenu = document.getElementById("mobile-menu");
+
+    menuToggle.addEventListener("click", () => {
+      if (mobileMenu.classList.contains("hidden")) {
+        mobileMenu.classList.remove("hidden");
+        menuToggle.innerHTML = '<i class="fas fa-times text-xl"></i>';
+      } else {
+        mobileMenu.classList.add("hidden");
+        menuToggle.innerHTML = '<i class="fas fa-bars text-xl"></i>';
+      }
+    });
+
+    function closeMobileMenu() {
+      mobileMenu.classList.add("hidden");
+      menuToggle.innerHTML = '<i class="fas fa-bars text-xl"></i>';
+    }
+
+    // Chatbot toggle
+    const chatbotToggle = document.getElementById("chatbot-toggle");
+    const chatbot = document.getElementById("chatbot");
+    const chatbotClose = document.getElementById("chatbot-close");
+    const chat = document.getElementById("chat");
+    const userInput = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+
+    chatbotToggle.addEventListener("click", () => {
+      if (chatbot.style.display === "flex") {
+        chatbot.style.display = "none";
+      } else {
+        chatbot.style.display = "flex";
+        userInput.focus();
+      }
+    });
+
+    chatbotClose.addEventListener("click", () => {
+      chatbot.style.display = "none";
+      chatbotToggle.focus();
+    });
+
+    function addMessage(text, sender) {
+      const div = document.createElement("div");
+      div.className = `chatbot-message ${sender}`;
+      div.textContent = text;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function sendMessage() {
+      const userText = userInput.value.trim();
+      if (!userText) return;
+      addMessage(userText, "user");
+      userInput.value = "";
+      handleUserInput(userText);
+    }
+
+    function handleUserInput(text) {
+      const dataKuliner = [
+        { Nama: "Sate Madura", Asal: "Madura, Jawa Timur", Harga: 20000, Deskripsi: "Sate ayam atau kambing khas Madura yang disajikan dengan bumbu kacang kental dan lontong.", Kategori: "Daging" },
+        { Nama: "Pempek", Asal: "Palembang, Sumatera Selatan", Harga: 25000, Deskripsi: "Olahan ikan dan sagu yang disajikan dengan kuah cuko khas Palembang.", Kategori: "Ikan" },
+        { Nama: "Gudeg", Asal: "Yogyakarta", Harga: 30000, Deskripsi: "Masakan nangka muda dengan rasa manis, biasanya disajikan dengan ayam, telur, dan sambal krecek.", Kategori: "Sayur" },
+        { Nama: "Coto Makassar", Asal: "Makassar, Sulawesi Selatan", Harga: 35000, Deskripsi: "Sup daging sapi dengan bumbu rempah khas Makassar, disajikan dengan ketupat.", Kategori: "Sup/Daging" },
+        { Nama: "Rendang", Asal: "Padang, Sumatera Barat", Harga: 40000, Deskripsi: "Daging sapi dimasak dengan santan dan rempah-rempah khas Minang dalam waktu lama.", Kategori: "Daging" },
+        { Nama: "Papeda", Asal: "Papua dan Maluku", Harga: 20000, Deskripsi: "Makanan berbahan dasar sagu yang disajikan dengan kuah ikan kuning.", Kategori: "Sagu/Ikan" },
+        { Nama: "Ayam Taliwang", Asal: "Lombok, NTB", Harga: 30000, Deskripsi: "Ayam bakar dengan sambal khas Lombok yang pedas menyengat.", Kategori: "Daging" },
+        { Nama: "Soto Banjar", Asal: "Banjarmasin, Kalimantan Selatan", Harga: 25000, Deskripsi: "Soto ayam berkuah bening dengan tambahan perkedel, telur rebus, dan ketupat.", Kategori: "Sup" },
+        { Nama: "Ayam Betutu", Asal: "Bali", Harga: 35000, Deskripsi: "Ayam utuh berbumbu rempah khas Bali, dimasak dengan cara dikukus dan dibakar.", Kategori: "Daging" },
+        { Nama: "Bubur Manado", Asal: "Manado, Sulawesi Utara", Harga: 20000, Deskripsi: "Bubur nasi campur sayuran seperti bayam, jagung, dan kemangi.", Kategori: "Sayur/Nasi" }
+      ];
+
+      const lower = text.toLowerCase();
+      let response = "Maaf, saya belum bisa memahami pertanyaan itu. Coba tanya makanan dari daerah, kategori, atau harga tertentu ya!";
+
+      // Cari berdasarkan nama makanan
+      const byName = dataKuliner.find(item => lower.includes(item.Nama.toLowerCase()));
+      if (byName) {
+        response = `🍽️ *${byName.Nama}*\nAsal: ${byName.Asal}\nHarga: Rp${byName.Harga}\nDeskripsi: ${byName.Deskripsi}`;
+        return setTimeout(() => addMessage(response, "bot"), 500);
+      }
+
+      // Cari berdasarkan asal/daerah
+      const daerah = dataKuliner.filter(item => lower.includes(item.Asal.toLowerCase()) || lower.includes(item.Asal.split(",")[0].toLowerCase()));
+      if (daerah.length > 0) {
+        response = `Berikut makanan dari ${daerah[0].Asal}:\n\n` +
+          daerah.map(m => `🍽️ ${m.Nama} - Rp${m.Harga}`).join("\n");
+        return setTimeout(() => addMessage(response, "bot"), 500);
+      }
+
+      // Cari berdasarkan kategori
+      const kategoriList = ["daging", "ikan", "sayur", "sup", "nasi", "sagu"];
+      const kategoriDetected = kategoriList.find(k => lower.includes(k));
+      if (kategoriDetected) {
+        const hasilKategori = dataKuliner.filter(item =>
+          item.Kategori.toLowerCase().includes(kategoriDetected)
+        );
+        if (hasilKategori.length > 0) {
+          response = `Berikut makanan kategori *${kategoriDetected}*:\n\n` +
+            hasilKategori.map(m => `🍽️ ${m.Nama} - Rp${m.Harga}`).join("\n");
+        } else {
+          response = `Maaf, tidak ditemukan makanan dengan kategori ${kategoriDetected}`;
+        }
+        return setTimeout(() => addMessage(response, "bot"), 500);
+      }
+
+      // Cari berdasarkan harga (budget)
+      const budgetMatch = text.match(/(\d+)\s*(ribu|rb|k)?/);
+      if (budgetMatch) {
+        const budget = parseInt(budgetMatch[1]) * (budgetMatch[2] ? 1000 : 1);
+        const hasilBudget = dataKuliner.filter(item => item.Harga <= budget);
+        if (hasilBudget.length > 0) {
+          response = `Makanan dengan harga di bawah Rp${budget}:\n\n` +
+            hasilBudget.map(m => `🍽️ ${m.Nama} - Rp${m.Harga}`).join("\n");
+        } else {
+          response = `Maaf, tidak ada makanan dengan harga di bawah Rp${budget}`;
+        }
+        return setTimeout(() => addMessage(response, "bot"), 500);
+      }
+
+      // Balasan default
+      setTimeout(() => addMessage(response, "bot"), 500);
+    }
+    sendBtn.addEventListener("click", sendMessage);
+  </script>
+ </body>
+</html>
